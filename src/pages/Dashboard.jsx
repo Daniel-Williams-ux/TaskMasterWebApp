@@ -42,7 +42,10 @@ const Dashboard = () => {
 
   // Add a function to handle edit deletion
   const [taskToEdit, setTaskToEdit] = useState(null);
-  
+
+  //Add Search Functionality
+  const [searchQuery, setSearchQuery] = useState("");
+
 
   return (
     <div className="container mx-auto p-4">
@@ -57,10 +60,12 @@ const Dashboard = () => {
           Add Task
         </button>
         <input
-          type="text"
-          placeholder="Search tasks..."
-          className="border border-gray-300 rounded px-3 py-2"
-        />
+            type="text"
+            placeholder="Search tasks..."
+            className="border border-gray-300 rounded px-3 py-2"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            />
       </div>
 
       {/* Task List */}
