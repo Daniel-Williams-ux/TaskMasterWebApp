@@ -21,6 +21,13 @@ const Dashboard = () => {
     setIsModalOpen(false); // Close modal
   };
 
+  //Add a function to handle task deletion
+  const handleDeleteTask = (id) => {
+    const updatedTasks = tasks.filter((task) => task.id !== id);
+    setTasks(updatedTasks);
+  };
+  
+
   return (
     <div className="container mx-auto p-4">
       <h2 className="text-2xl font-bold mb-4">Task Dashboard</h2>
@@ -55,7 +62,13 @@ const Dashboard = () => {
               </div>
               <div className="flex gap-2">
                 <button className="text-blue-600 hover:underline">Edit</button>
-                <button className="text-red-600 hover:underline">Delete</button>
+                <button
+                    onClick={() => handleDeleteTask(task.id)}
+                    className="text-red-600 hover:underline"
+                >
+  Delete
+</button>
+
               </div>
             </div>
           ))
