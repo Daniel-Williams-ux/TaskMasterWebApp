@@ -46,6 +46,12 @@ const Dashboard = () => {
   //Add Search Functionality
   const [searchQuery, setSearchQuery] = useState("");
 
+  //Filter Tasks Based on the Search Query
+  const filteredTasks = tasks.filter((task) =>
+    task.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+  
+
 
   return (
     <div className="container mx-auto p-4">
@@ -70,11 +76,11 @@ const Dashboard = () => {
 
       {/* Task List */}
       <div className="space-y-4">
-        {tasks.length > 0 ? (
-          tasks.map((task) => (
+      {filteredTasks.length > 0 ? (
+        filteredTasks.map((task) => (
             <div
-              key={task.id}
-              className="p-4 bg-white rounded shadow flex justify-between items-center"
+            key={task.id}
+            className="p-4 bg-white rounded shadow flex justify-between items-center"
             >
               <div>
                 <h3 className="text-lg font-bold">{task.title}</h3>
