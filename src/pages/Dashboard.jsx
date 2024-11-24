@@ -46,12 +46,20 @@ const Dashboard = () => {
   //Add Search Functionality
   const [searchQuery, setSearchQuery] = useState("");
 
-  //Filter Tasks Based on the Search Query
-  const filteredTasks = tasks.filter((task) =>
-    task.title.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-  
+  //Add Priority Filter State
+  const [filterPriority, setFilterPriority] = useState("All");
 
+  //Filter Tasks Based on the Search Query
+  const filteredTasks = tasks.filter((task) => {
+    const matchesSearch = task.title
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase());
+    const matchesPriority =
+      filterPriority === "All" || task.priority === filterPriority;
+  
+    return matchesSearch && matchesPriority;
+  });
+  
 
   return (
     <div className="container mx-auto p-4">
@@ -60,19 +68,36 @@ const Dashboard = () => {
       {/* Add Task Button */}
       <div className="flex justify-between items-center mb-4">
         <button
-          onClick={() => setIsModalOpen(true)}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            onClick={() => setIsModalOpen(true)}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
         >
-          Add Task
+            Add Task
         </button>
-        <input
+
+        <div className="flex gap-4">
+            {/* Search Bar */}
+            <input
             type="text"
             placeholder="Search tasks..."
             className="border border-gray-300 rounded px-3 py-2"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             />
-      </div>
+
+            {/* Priority Filter */}
+            <select
+            value={filterPriority}
+            onChange={(e) => setFilterPriority(e.target.value)}
+            className="border border-gray-300 rounded px-3 py-2"
+            >
+            <option value="All">All</option>
+            <option value="Low">Low</option>
+            <option value="Medium">Medium</option>
+            <option value="High">High</option>
+            </select>
+        </div>
+    </div>
+
 
       {/* Task List */}
       <div className="space-y-4">
