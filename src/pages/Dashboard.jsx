@@ -5,27 +5,43 @@ const Dashboard = () => {
     { id: 1, title: "Learn React", priority: "High", dueDate: "2024-11-25" },
     { id: 2, title: "Build TaskMaster", priority: "Medium", dueDate: "2024-12-01" },
   ]);
-
+Add a function to handle edit deletion
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newTask, setNewTask] = useState({ title: "", priority: "Low", dueDate: "" });
 
   // Function to handle task addition
   const handleAddTask = () => {
-    const updatedTasks = [
-      ...tasks,
-      { id: tasks.length + 1, ...newTask }, // Add new task with unique ID
-    ];
-    setTasks(updatedTasks);
-    setNewTask({ title: "", priority: "Low", dueDate: "" }); // Reset form
-    setIsModalOpen(false); // Close modal
+    if (taskToEdit) {
+      // Update the existing task
+      const updatedTasks = tasks.map((task) =>
+        task.id === taskToEdit.id ? { ...task, ...newTask } : task
+      );
+      setTasks(updatedTasks);
+      setTaskToEdit(null); // Reset edit state
+    } else {
+      // Add a new task
+      const updatedTasks = [
+        ...tasks,
+        { id: tasks.length + 1, ...newTask }, // Add new task with unique ID
+      ];
+      setTasks(updatedTasks);
+    }
+  
+    // Reset modal and form
+    setNewTask({ title: "", priority: "Low", dueDate: "" });
+    setIsModalOpen(false);
   };
+  
 
   //Add a function to handle task deletion
   const handleDeleteTask = (id) => {
     const updatedTasks = tasks.filter((task) => task.id !== id);
     setTasks(updatedTasks);
   };
+
+  //
+  const [taskToEdit, setTaskToEdit] = useState(null);
   
 
   return (
@@ -61,13 +77,22 @@ const Dashboard = () => {
                 <p className="text-sm text-gray-600">Due: {task.dueDate}</p>
               </div>
               <div className="flex gap-2">
-                <button className="text-blue-600 hover:underline">Edit</button>
+                <button
+                    onClick={() => {
+                        setTaskToEdit(task);
+                        setNewTask(task); // Populate modal fields
+                        setIsModalOpen(true);
+                    }}
+                    className="text-blue-600 hover:underline"
+                    >
+                    Edit
+                </button>
                 <button
                     onClick={() => handleDeleteTask(task.id)}
                     className="text-red-600 hover:underline"
                 >
-  Delete
-</button>
+                    Delete
+                </button>
 
               </div>
             </div>
