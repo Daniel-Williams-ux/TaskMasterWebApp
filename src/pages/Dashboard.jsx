@@ -1,11 +1,25 @@
 import { useState } from "react";
 
 const Dashboard = () => {
-  // Placeholder tasks (mock data)
   const [tasks, setTasks] = useState([
     { id: 1, title: "Learn React", priority: "High", dueDate: "2024-11-25" },
     { id: 2, title: "Build TaskMaster", priority: "Medium", dueDate: "2024-12-01" },
   ]);
+
+  // Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newTask, setNewTask] = useState({ title: "", priority: "Low", dueDate: "" });
+
+  // Function to handle task addition
+  const handleAddTask = () => {
+    const updatedTasks = [
+      ...tasks,
+      { id: tasks.length + 1, ...newTask }, // Add new task with unique ID
+    ];
+    setTasks(updatedTasks);
+    setNewTask({ title: "", priority: "Low", dueDate: "" }); // Reset form
+    setIsModalOpen(false); // Close modal
+  };
 
   return (
     <div className="container mx-auto p-4">
@@ -13,7 +27,10 @@ const Dashboard = () => {
 
       {/* Add Task Button */}
       <div className="flex justify-between items-center mb-4">
-        <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+        >
           Add Task
         </button>
         <input
@@ -46,6 +63,59 @@ const Dashboard = () => {
           <p className="text-center text-gray-600">No tasks available.</p>
         )}
       </div>
+
+      {/* Modal for Adding Tasks */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center">
+          <div className="bg-white p-6 rounded shadow w-96">
+            <h3 className="text-xl font-bold mb-4">Add New Task</h3>
+            <div className="mb-4">
+              <label className="block mb-1 text-gray-700">Task Title</label>
+              <input
+                type="text"
+                value={newTask.title}
+                onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
+                className="w-full border border-gray-300 rounded px-3 py-2"
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block mb-1 text-gray-700">Priority</label>
+              <select
+                value={newTask.priority}
+                onChange={(e) => setNewTask({ ...newTask, priority: e.target.value })}
+                className="w-full border border-gray-300 rounded px-3 py-2"
+              >
+                <option value="Low">Low</option>
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
+              </select>
+            </div>
+            <div className="mb-4">
+              <label className="block mb-1 text-gray-700">Due Date</label>
+              <input
+                type="date"
+                value={newTask.dueDate}
+                onChange={(e) => setNewTask({ ...newTask, dueDate: e.target.value })}
+                className="w-full border border-gray-300 rounded px-3 py-2"
+              />
+            </div>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="text-gray-600 hover:underline"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleAddTask}
+                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+              >
+                Add Task
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
