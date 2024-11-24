@@ -5,7 +5,7 @@ const Dashboard = () => {
     { id: 1, title: "Learn React", priority: "High", dueDate: "2024-11-25" },
     { id: 2, title: "Build TaskMaster", priority: "Medium", dueDate: "2024-12-01" },
   ]);
-Add a function to handle edit deletion
+  
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newTask, setNewTask] = useState({ title: "", priority: "Low", dueDate: "" });
@@ -40,7 +40,7 @@ Add a function to handle edit deletion
     setTasks(updatedTasks);
   };
 
-  //
+  // Add a function to handle edit deletion
   const [taskToEdit, setTaskToEdit] = useState(null);
   
 
@@ -138,12 +138,16 @@ Add a function to handle edit deletion
               />
             </div>
             <div className="flex justify-end gap-2">
-              <button
-                onClick={() => setIsModalOpen(false)}
+            <button
+                onClick={() => {
+                    setIsModalOpen(false);
+                    setTaskToEdit(null); // Reset edit state
+                    setNewTask({ title: "", priority: "Low", dueDate: "" }); // Reset form
+                }}
                 className="text-gray-600 hover:underline"
-              >
+                >
                 Cancel
-              </button>
+            </button>
               <button
                 onClick={handleAddTask}
                 className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
