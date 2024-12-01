@@ -30,7 +30,7 @@ const Dashboard = () => {
     if (taskToEdit) {
       // Update the task via the backend
       try {
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/tasks/${taskToEdit.id}`, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/tasks/${taskToEdit.id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(newTask),
@@ -47,7 +47,7 @@ const Dashboard = () => {
     } else {
       // Add a new task via the backend
       try {
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/tasks`, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/tasks`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(newTask),
@@ -70,7 +70,7 @@ const Dashboard = () => {
   // Function to handle task deletion
   const handleDeleteTask = async (id) => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/tasks/${id}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/tasks/${id}`, {
         method: "DELETE",
       });
       if (!response.ok) throw new Error("Failed to delete task");
