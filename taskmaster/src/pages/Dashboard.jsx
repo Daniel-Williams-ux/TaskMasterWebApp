@@ -6,11 +6,10 @@ const Dashboard = () => {
   // Fetch tasks from backend on load
   console.log("API URL:", import.meta.env.VITE_API_URL);
 
-
   useEffect(() => {
     const fetchTasks = async () => {
       try {
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/tasks`);
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/tasks`);
         if (!response.ok) throw new Error("Failed to fetch tasks");
         const data = await response.json();
         setTasks(data); // Update the state with the fetched tasks
