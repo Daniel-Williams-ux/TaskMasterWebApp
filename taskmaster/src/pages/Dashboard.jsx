@@ -2,10 +2,13 @@ import { useState, useEffect } from "react";
 
 const Dashboard = () => {
   const [tasks, setTasks] = useState([]); // Initial state for tasks
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newTask, setNewTask] = useState({ title: "", priority: "Low", dueDate: "" });
+  const [taskToEdit, setTaskToEdit] = useState(null); // Track task being edited
+  const [searchQuery, setSearchQuery] = useState(""); // For search
+  const [filterPriority, setFilterPriority] = useState("All"); // For priority filter
 
   // Fetch tasks from backend on load
-  console.log("API URL:", import.meta.env.VITE_API_URL);
-
   useEffect(() => {
     const fetchTasks = async () => {
       try {
@@ -14,57 +17,41 @@ const Dashboard = () => {
         const data = await response.json();
         setTasks(data); // Update the state with the fetched tasks
       } catch (error) {
-        console.error(error);
+        console.error("Error fetching tasks:", error);
       }
     };
     fetchTasks();
   }, []);
 
-  // Modal state
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newTask, setNewTask] = useState({ title: "", priority: "Low", dueDate: "" });
-  const [taskToEdit, setTaskToEdit] = useState(null); // Track task being edited
-
-  // Function to handle task addition and editing
+  // Function to handle task addition or editing
   const handleAddTask = async () => {
-    if (taskToEdit) {
-      // Update the task via the backend
-      try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/tasks/${taskToEdit.id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(newTask),
-        });
-        if (!response.ok) throw new Error("Failed to update task");
+    try {
+      const url = taskToEdit
+        ? `${import.meta.env.VITE_API_URL}/tasks/${taskToEdit._id}`
+        : `${import.meta.env.VITE_API_URL}/tasks`;
 
-        const updatedTask = await response.json();
-        setTasks((prevTasks) =>
-          prevTasks.map((task) => (task.id === updatedTask.id ? updatedTask : task))
-        );
-      } catch (error) {
-        console.error(error);
-      }
-    } else {
-      // Add a new task via the backend
-      try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/tasks`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(newTask),
-        });
-        if (!response.ok) throw new Error("Failed to add task");
+      const method = taskToEdit ? "PUT" : "POST";
 
-        const createdTask = await response.json();
-        setTasks((prevTasks) => [...prevTasks, createdTask]); // Add the new task to the list
-      } catch (error) {
-        console.error(error);
-      }
+      const response = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newTask),
+      });
+
+      if (!response.ok) throw new Error("Failed to save task");
+
+      const updatedTask = await response.json();
+
+      setTasks((prevTasks) =>
+        taskToEdit
+          ? prevTasks.map((task) => (task._id === updatedTask._id ? updatedTask : task))
+          : [...prevTasks, updatedTask]
+      );
+
+      resetModal();
+    } catch (error) {
+      console.error("Error saving task:", error);
     }
-
-    // Reset modal and form
-    setNewTask({ title: "", priority: "Low", dueDate: "" });
-    setIsModalOpen(false);
-    setTaskToEdit(null); // Reset edit state
   };
 
   // Function to handle task deletion
@@ -75,26 +62,23 @@ const Dashboard = () => {
       });
       if (!response.ok) throw new Error("Failed to delete task");
 
-      setTasks((prevTasks) => prevTasks.filter((task) => task.id !== id)); // Update the local state
+      setTasks((prevTasks) => prevTasks.filter((task) => task._id !== id));
     } catch (error) {
-      console.error(error);
+      console.error("Error deleting task:", error);
     }
   };
 
-  // Add Search Functionality
-  const [searchQuery, setSearchQuery] = useState("");
+  // Reset modal state
+  const resetModal = () => {
+    setIsModalOpen(false);
+    setTaskToEdit(null);
+    setNewTask({ title: "", priority: "Low", dueDate: "" });
+  };
 
-  // Add Priority Filter State
-  const [filterPriority, setFilterPriority] = useState("All");
-
-  // Filter Tasks Based on the Search Query
+  // Filter tasks based on search query and priority filter
   const filteredTasks = tasks.filter((task) => {
-    const matchesSearch = task.title
-      .toLowerCase()
-      .includes(searchQuery.toLowerCase());
-    const matchesPriority =
-      filterPriority === "All" || task.priority === filterPriority;
-
+    const matchesSearch = task.title.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesPriority = filterPriority === "All" || task.priority === filterPriority;
     return matchesSearch && matchesPriority;
   });
 
@@ -102,7 +86,7 @@ const Dashboard = () => {
     <div className="container mx-auto p-4">
       <h2 className="text-2xl font-bold mb-4">Task Dashboard</h2>
 
-      {/* Add Task Button */}
+      {/* Add Task Button and Filters */}
       <div className="flex justify-between items-center mb-4">
         <button
           onClick={() => setIsModalOpen(true)}
@@ -140,7 +124,7 @@ const Dashboard = () => {
         {filteredTasks.length > 0 ? (
           filteredTasks.map((task) => (
             <div
-              key={task.id}
+              key={task._id}
               className="p-4 bg-white rounded shadow flex justify-between items-center"
             >
               <div>
@@ -152,7 +136,7 @@ const Dashboard = () => {
                 <button
                   onClick={() => {
                     setTaskToEdit(task);
-                    setNewTask(task); // Populate modal fields
+                    setNewTask({ ...task }); // Populate modal fields
                     setIsModalOpen(true);
                   }}
                   className="text-blue-600 hover:underline"
@@ -160,7 +144,7 @@ const Dashboard = () => {
                   Edit
                 </button>
                 <button
-                  onClick={() => handleDeleteTask(task.id)}
+                  onClick={() => handleDeleteTask(task._id)}
                   className="text-red-600 hover:underline"
                 >
                   Delete
@@ -173,7 +157,7 @@ const Dashboard = () => {
         )}
       </div>
 
-      {/* Modal for Adding Tasks */}
+      {/* Modal for Adding/Editing Tasks */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center">
           <div className="bg-white p-6 rounded shadow w-96">
@@ -211,14 +195,7 @@ const Dashboard = () => {
               />
             </div>
             <div className="flex justify-end gap-2">
-              <button
-                onClick={() => {
-                  setIsModalOpen(false);
-                  setTaskToEdit(null); // Reset edit state
-                  setNewTask({ title: "", priority: "Low", dueDate: "" }); // Reset form
-                }}
-                className="text-gray-600 hover:underline"
-              >
+              <button onClick={resetModal} className="text-gray-600 hover:underline">
                 Cancel
               </button>
               <button
